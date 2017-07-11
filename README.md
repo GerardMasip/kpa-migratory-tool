@@ -6,8 +6,8 @@ Migratory tool to create required Neon project scaffolder
 
 1. Change properties (located on application.properties) with your local directetories:
 
-	project.destination.directory
-	gradle.directory
+	* project.destination.directory
+	* gradle.directory
 
 2. mvn spring-boot:run
 
