@@ -1,0 +1,142 @@
+apply plugin: 'distribution'
+apply plugin: 'java-library-distribution'
+
+apply plugin: 'os-package'
+
+apply plugin: 'net.researchgate.release'
+apply plugin: 'docker'
+
+apply plugin: 'spring-boot'
+apply plugin: "nebula.ospackage"
+
+sourceCompatibility = 1.8
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2'
+}
+
+def permanentPackageName = project.name
+def group = 'thomsonreuters-1p'
+def rpmRelease = 1
+def snapshot = true
+if (snapshot) { rpmRelease = 'SNAPSHOT' }
+
+configurations.all {
+    resolutionStrategy.cacheDynamicVersionsFor 1, 'hours'
+    resolutionStrategy.cacheChangingModulesFor 1, 'hours'
+}
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.2.RELEASE")
+        classpath("com.netflix.nebula:gradle-ospackage-plugin:4.3.0")
+    }
+}
+
+
+
+bootRepackage {
+    mainClass = 'com.thomson.ls.sb.kpa.sb_retrieve_units_ms.Application'
+}
+
+jar {
+    baseName = '#WithDashesProjectName-ms'
+    version =  '1.0'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+        resources {
+            srcDir 'src/main/resources'
+        }
+    }
+    test {
+        java {
+            srcDir 'src/test/java'
+        }
+        resources {
+            srcDir 'src/test/resources'
+        }
+    }
+}
+
+ospackage {
+    packageName = permanentPackageName
+    release = rpmRelease
+    arch = NOARCH
+    os = LINUX
+    from(file('root/etc/reuters/karyon')) {
+        into('/etc/reuters')
+        user 'root'
+        permissionGroup 'root'
+    }
+
+
+    from("build/install/"+ name) {
+        into('/opt/reuters/apps/karyon')
+        user 'karyon'
+        permissionGroup 'karyon'
+
+    }
+}
+
+buildRpm.dependsOn installDist
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Dalston.SR1'
+    }
+}
+
+
+dependencies {
+
+    compile("org.springframework.cloud:spring-cloud-starter-eureka")
+    compile("org.springframework.boot:spring-boot-starter-actuator:1.5.2.RELEASE")
+    compile("com.clarivate:eiddo-spring-client:0.0.2-SNAPSHOT")
+    compile("org.springframework.boot:spring-boot-starter-web:1.5.2.RELEASE") {
+        exclude module: "spring-boot-starter-tomcat"
+    }
+    compile("org.springframework.boot:spring-boot-starter-jdbc")
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+    testCompile("org.mockito:mockito-all:1.10.19")
+
+
+    compile("org.postgresql:postgresql:9.4-1206-jdbc42")
+    compile("io.springfox:springfox-swagger-ui:2.2.2")
+    compile("io.springfox:springfox-swagger2:2.2.2")
+    compile("junit:junit")
+    compile("org.apache.commons:commons-io:1.3.2")
+    compile("org.javatuples:javatuples:1.2")
+    compile("com.google.guava:guava:18.0")
+
+    compile project(':#WithDashesProjectName-ct')
+}
+
+
+tasks.withType(org.springframework.boot.gradle.run.BootRunTask) {
+    systemProperty('archaius.deployment.environment', 'dev')
+    systemProperty('archaius.deployment.stack', '1p')
+    systemProperty('archaius.deployment.subenvironment', 'snapshot')
+    systemProperty('eiddo.client.repoChain', '#WithoutDashesProjectName')
+    systemProperty('archaius.deployment.domainName', 'dev.oneplatform.build')
+    systemProperty('archaius.deployment.region', 'us-west-2')
+    systemProperty('archaius.deployment.applicationId', '#WithDashesProjectName')
+}
+
+task svcVersion() << {
+    def file = new File("$projectDir/build/svcVersion.txt")
+    file.createNewFile()
+    file.text = """version=$version
+applicationName=.name
+"""
+}

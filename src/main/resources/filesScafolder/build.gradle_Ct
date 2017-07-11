@@ -1,0 +1,9 @@
+
+jar {
+    baseName = '#projectName-ct'
+    version =  '1.0'
+}
+
+dependencies {
+
+}

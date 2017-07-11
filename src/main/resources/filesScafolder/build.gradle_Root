@@ -1,0 +1,190 @@
+ext.githubProjectName = "sysbio-kpa"
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2'
+}
+
+// Add SonarQube Gradle Runner
+apply plugin: 'org.sonarqube'
+
+
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url = "https://clojars.org/repo/"
+        }
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        maven {
+            url "http://repo.1p.thomsonreuters.com/nexus/content/repositories/thirdparty/"
+        }
+        maven {
+            url "http://repo.1p.thomsonreuters.com/nexus/content/repositories/snapshots/"
+        }
+        maven {
+            url "http://repo.1p.thomsonreuters.com/nexus/content/repositories/releases/"
+        }
+        maven {
+            url "http://repo.oneplatform.build/nexus/content/groups/public/"
+        }
+        maven {
+            url "http://repo.oneplatform.build/nexus/content/groups/private/"
+        }
+    }
+    dependencies {
+        classpath group: 'com.netflix.nebula',  name: 'gradle-ospackage-plugin', version: '2.2.0'
+        classpath group: 'org.jsonschema2pojo', name: 'jsonschema2pojo-gradle-plugin', version: '0.4.18'
+        classpath group: 'net.researchgate',    name: 'gradle-release', version: '2.1.1'
+        classpath group: 'com.bmuschko',        name: 'gradle-nexus-plugin', version: '2.3'
+        classpath group: 'eu.appsatori',        name: 'gradle-fatjar-plugin', version: '0.3'
+        classpath group: 'gradle.plugin.org.detoeuf', name: 'swagger-codegen-plugin', version:'1.3'
+        classpath group: 'org.sonarsource.scanner.gradle', name: 'sonarqube-gradle-plugin', version: '1.2'
+        classpath 'se.transmode.gradle:gradle-docker:1.2'
+    }
+}
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'eclipse'
+    apply plugin: 'jacoco'
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven {
+            url = "https://clojars.org/repo/"
+        }
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        maven {
+            url "http://repo.1p.thomsonreuters.com/nexus/content/repositories/thirdparty/"
+        }
+        maven {
+            url "http://repo.1p.thomsonreuters.com/nexus/content/repositories/snapshots/"
+        }
+        maven {
+            url "http://repo.1p.thomsonreuters.com/nexus/content/repositories/releases/"
+        }
+        maven {
+            url "http://repo.oneplatform.build/nexus/content/groups/public/"
+        }
+        maven {
+            url "http://repo.oneplatform.build/nexus/content/groups/private/"
+        }
+        maven {
+            url "http://maven.jahia.org/maven2/"
+        }
+        maven { url "http://repo.spring.io/release" }
+    }
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    jacoco {
+        toolVersion = "0.7.6+"
+        reportsDir = file("${project.buildDir}/jacoco/reports")
+    }
+
+    sonarqube {
+        properties {
+            property "sonar.projectName", "sysbio-kpa"
+            property "sonar.projectKey", "com.thomsonreuters:sysbio-kpa"
+            property "sonar.branch", System.getenv("GIT_BRANCH") ?: ""
+            property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
+            property "sonar.exclusions", [
+                    'src/main/java/com/clarivate/dra/search/test/lib/**',
+                    'src/main/java/com/clarivate/dra/search/injection/**'
+            ]
+        }
+    }
+    configurations.all {
+        resolutionStrategy.cacheDynamicVersionsFor 1, 'hours'
+        resolutionStrategy.cacheChangingModulesFor 1, 'hours'
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'eclipse'
+    apply plugin: 'jacoco'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    sonarqube {
+        properties {
+            property "sonar.projectName", project.name
+        }
+    }
+
+    jacoco {
+        toolVersion = "0.7.6+"
+        reportsDir = file("${project.buildDir}/jacoco/reports")
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+            html.enabled true
+            csv.enabled false
+            html.destination "${project.buildDir}/jacoco/reports/coverage/html"
+        }
+    }
+
+    eclipse {
+        classpath {
+            downloadSources = true
+        }
+    }
+
+    repositories {
+    	mavenLocal()
+        jcenter()
+        maven {
+            url "http://repo.oneplatform.build/nexus/content/groups/public/"
+        }
+        maven {
+            url "http://repo.oneplatform.build/nexus/content/groups/private/"
+        }
+        maven {
+            url 'http://repo.1p.thomsonreuters.com/nexus/content/repositories/thirdparty-snapshots/'
+        }
+    }
+}
+
+if (System.properties['withSystem']!=null) {
+    println("########################################### Executing SYSTEM TEST on environment " + System.properties['withSystem'].toUpperCase())
+}
+
+task rootReport(type: JacocoReport) {
+    dependsOn = subprojects.test
+    additionalSourceDirs = files(subprojects.sourceSets.main.allSource.srcDirs)
+    sourceDirectories = files(subprojects.sourceSets.main.allSource.srcDirs)
+    classDirectories = files(subprojects.sourceSets.main.output)
+    executionData = files(subprojects.jacocoTestReport.executionData)
+    reports {
+        html.enabled = true
+        csv.enabled = false
+    }
+    onlyIf = {
+        true
+    }
+    doFirst {
+        executionData = files(executionData.findAll {
+            it.exists()
+        })
+    }
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['**/com/clarivate/dra/search/test/lib/**',
+                              '**/com/thomsonreuters/server/**',
+                              '**/com/clarivate/cache/injection/**'])
+        })
+    }
+}
