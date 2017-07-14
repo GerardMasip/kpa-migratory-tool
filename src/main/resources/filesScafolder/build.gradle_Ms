@@ -74,7 +74,7 @@ ospackage {
     release = rpmRelease
     arch = NOARCH
     os = LINUX
-    from(file('root/etc/reuters/karyon')) {
+    from(file('root/etc/reuters/springboot')) {
         into('/etc/reuters')
         user 'root'
         permissionGroup 'root'
@@ -82,9 +82,9 @@ ospackage {
 
 
     from("build/install/"+ name) {
-        into('/opt/reuters/apps/karyon')
-        user 'karyon'
-        permissionGroup 'karyon'
+        into('/opt/reuters/apps/springboot')
+        user 'springboot'
+        permissionGroup 'springboot'
 
     }
 }
