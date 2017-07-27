@@ -361,6 +361,7 @@ p.w3lstext {
                 <form action="#" method="post">
                     <input type="text" name="Search" placeholder="Enter directory destination..." id="input-destination-folder" th:value="${destinationDirectory}"/>
                     <input type="text" name="Search" placeholder="Enter your new project name..." id="input-project-name"/>
+                    <input type="text" name="Search" placeholder="Enter main class package..." id="input-main-package"/>
                 </form>
                 <br/>
                 <input class="btn" onclick="createProject()" value="Create Project"/>
@@ -389,7 +390,8 @@ p.w3lstext {
                 url : "./createproject",
                 type: "POST",
                 data : {destinationPath: $("#input-destination-folder").val(),
-                        projectName: $("#input-project-name").val()},
+                        projectName: $("#input-project-name").val(),
+                        mainPackage: $("#input-main-package").val()},
                 success: function(data, textStatus, jqXHR) {
 
                 },

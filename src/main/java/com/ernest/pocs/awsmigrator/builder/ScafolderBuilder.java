@@ -19,7 +19,7 @@ public class ScafolderBuilder {
     @Value("${gradle.directory}")
     private String gradleDirectory;
 
-    public void create(String destinationPath, String projectName) throws IOException {
+    public void create(String destinationPath, String projectName, String mainPackage) throws IOException {
         System.out.println("***** STARTING " + projectName + " *****");
         String rootFolder = destinationPath+"//"+projectName;
 
@@ -50,17 +50,26 @@ public class ScafolderBuilder {
         createBuildGradleCtFile(rootFolder, projectName);
         System.out.println("Completed: build.gradle *-ct folder");
 
-        createBuildGradleMsFile(rootFolder, projectName);
+        createBuildGradleMsFile(rootFolder, projectName, mainPackage);
         System.out.println("Completed: build.gradle *-ms folder");
 
+        createEurekaConfig(rootFolder);
+        System.out.println("Completed: EurekaConfig created");
         System.out.println("***** COMPLETED " + projectName + " *****");
-
     }
 
-    private void createBuildGradleMsFile(String rootFolder, String projectName) throws IOException {
+    private void createEurekaConfig(String rootFolder) throws IOException {
+        String content  = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("filesScafolder/config/EurekaConfig.java"));
+        new File(rootFolder+"//config").mkdir();
+        fileWriter.writeIntoFile(rootFolder+"//config//EurekaConfig.java", content);
+    }
+
+    private void createBuildGradleMsFile(String rootFolder, String projectName, String mainPackage) throws IOException {
         String content  = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("filesScafolder/build.gradle_Ms"));
         content = content.replaceAll("#WithDashesProjectName", projectName);
         content = content.replaceAll("#WithoutDashesProjectName", projectName.replaceAll("-",""));
+        System.out.println(mainPackage);
+        content = content.replaceAll("#mainPackage", mainPackage);
         fileWriter.writeIntoFile(rootFolder + "//"+projectName+"-ms//build.gradle", content);
     }
 

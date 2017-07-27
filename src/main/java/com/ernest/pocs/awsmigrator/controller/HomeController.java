@@ -30,8 +30,8 @@ public class HomeController {
 
     @RequestMapping(value = { "/createproject"})
     @ResponseBody
-    public void createProject(String destinationPath, String projectName) throws IOException {
-        scafolderBuilder.create(destinationPath, projectName);
+    public void createProject(String destinationPath, String projectName, String mainPackage) throws IOException {
+        scafolderBuilder.create(destinationPath, projectName, mainPackage);
     }
 
 }

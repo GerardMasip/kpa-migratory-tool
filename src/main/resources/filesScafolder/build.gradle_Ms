@@ -42,7 +42,7 @@ buildscript {
 
 
 bootRepackage {
-    mainClass = 'com.thomson.ls.sb.kpa.sb_retrieve_units_ms.Application'
+    mainClass = '#mainPackage'
 }
 
 jar {
