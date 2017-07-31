@@ -22,7 +22,7 @@ import java.util.Random;
 @Configuration
 public class EurekaConfig {
 
-	private static final Logger log = LoggerFactory.getLogger(com.thomson.ls.sb.kpa.sb_retrieve_units_ms.config.EurekaConfig.class);
+	private static final Logger log = LoggerFactory.getLogger(EurekaConfig.class);
 	private final String namespace = "eureka."; 
 	private DataCenterInfo info;
 	private HostInfo hostInfo;
