@@ -1,4 +1,4 @@
-package com.thomson.ls.sb.kpa.sb_retrieve_units_ms.config;
+package #mainPackage.config;
 
 import com.netflix.appinfo.AmazonInfo;
 import com.netflix.appinfo.AmazonInfo.MetaDataKey;

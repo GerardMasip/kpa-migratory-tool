@@ -53,13 +53,14 @@ public class ScafolderBuilder {
         createBuildGradleMsFile(rootFolder, projectName, mainPackage);
         System.out.println("Completed: build.gradle *-ms folder");
 
-        createEurekaConfig(rootFolder);
+        createEurekaConfig(rootFolder, mainPackage);
         System.out.println("Completed: EurekaConfig created");
         System.out.println("***** COMPLETED " + projectName + " *****");
     }
 
-    private void createEurekaConfig(String rootFolder) throws IOException {
+    private void createEurekaConfig(String rootFolder, String mainPackage) throws IOException {
         String content  = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("filesScafolder/config/EurekaConfig.java"));
+        content = content.replaceAll("#mainPackage", mainPackage);
         new File(rootFolder+"//config").mkdir();
         fileWriter.writeIntoFile(rootFolder+"//config//EurekaConfig.java", content);
     }
