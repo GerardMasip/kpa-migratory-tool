@@ -47,22 +47,21 @@ public class ScafolderBuilder {
         createProjectModules(rootFolder, projectName);
         System.out.println("Completed: ct module and ms module folders");
 
-        createBuildGradleCtFile(rootFolder, projectName);
-        System.out.println("Completed: build.gradle *-ct folder");
 
         createBuildGradleMsFile(rootFolder, projectName, mainPackage);
         System.out.println("Completed: build.gradle *-ms folder");
 
-        createEurekaConfig(rootFolder, mainPackage);
-        System.out.println("Completed: EurekaConfig created");
+        createConfig(rootFolder, mainPackage, "EurekaConfig.java");
+        createConfig(rootFolder, mainPackage, "RibbonConfig.java");
+        System.out.println("Completed: Config created");
         System.out.println("***** COMPLETED " + projectName + " *****");
     }
 
-    private void createEurekaConfig(String rootFolder, String mainPackage) throws IOException {
-        String content  = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("filesScafolder/config/EurekaConfig.java"));
+    private void createConfig(String rootFolder, String mainPackage, String file) throws IOException {
+        String content  = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("filesScafolder/config/"+file));
         content = content.replaceAll("#mainPackage", mainPackage);
         new File(rootFolder+"//config").mkdir();
-        fileWriter.writeIntoFile(rootFolder+"//config//EurekaConfig.java", content);
+        fileWriter.writeIntoFile(rootFolder+"//config//"+file, content);
     }
 
     private void createBuildGradleMsFile(String rootFolder, String projectName, String mainPackage) throws IOException {
@@ -74,15 +73,8 @@ public class ScafolderBuilder {
         fileWriter.writeIntoFile(rootFolder + "//"+projectName+"-ms//build.gradle", content);
     }
 
-    private void createBuildGradleCtFile(String rootFolder, String projectName) throws IOException {
-        String content  = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("filesScafolder/build.gradle_Ct"));
-        content = content.replaceAll("#projectName", projectName);
-        fileWriter.writeIntoFile(rootFolder + "//"+projectName+"-ct//build.gradle", content);
-    }
-
     private void createProjectModules(String rootFolder, String projectName) {
         new File(rootFolder+"//"+projectName+"-ms").mkdir();
-        new File(rootFolder+"//"+projectName+"-ct").mkdir();
     }
 
     private void createBuildGradleRootFile(String rootFolder) throws IOException {

@@ -102,7 +102,8 @@ dependencies {
 
     compile("org.springframework.cloud:spring-cloud-starter-eureka")
     compile("org.springframework.boot:spring-boot-starter-actuator:1.5.2.RELEASE")
-    compile("com.clarivate:eiddo-spring-client:0.0.2-SNAPSHOT")
+    compile("com.clarivate:spring-eiddo-client:0.0.5-SNAPSHOT")
+    compile("com.clarivate:spring-ribbon:0.0.4-SNAPSHOT")
     compile("org.springframework.boot:spring-boot-starter-web:1.5.2.RELEASE") {
         exclude module: "spring-boot-starter-tomcat"
     }
@@ -119,7 +120,6 @@ dependencies {
     compile("org.javatuples:javatuples:1.2")
     compile("com.google.guava:guava:18.0")
 
-    compile project(':#WithDashesProjectName-ct')
 }
 
 

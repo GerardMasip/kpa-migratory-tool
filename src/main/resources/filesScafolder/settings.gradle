@@ -1,1 +1,1 @@
-include '#serviceName-ct', '#serviceName-ms'
+include '#serviceName-ms'
