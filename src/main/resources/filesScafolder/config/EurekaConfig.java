@@ -1,4 +1,6 @@
-package #mainPackage.config;
+package
+
+import org.springframework.beans.factory.annotation.Autowired;#mainPackage.config;
 
 import com.netflix.appinfo.AmazonInfo;
 import com.netflix.appinfo.AmazonInfo.MetaDataKey;
@@ -19,11 +21,12 @@ import java.util.Map;
 import java.util.Random;
 
 
-@Configuration
+@Component
 public class EurekaConfig {
 
     private static final Logger log = LoggerFactory.getLogger(EurekaConfig.class);
 
+    @Autowired
     public EurekaConfig(InetUtils inetUtils) {
         initInstance(inetUtils);
     }
